@@ -40,6 +40,7 @@ static const float ZOMBIE_MOVE_POINTS_PER_SEC = 120.0;
     }
     _lastUpdateTime = currentTime;
     [self moveSprite:_zombie velocity:_velocity];
+    [self rotateSprite:_zombie toFace:_velocity];
     [self boundsCheckPlayer];
 }
 
@@ -67,6 +68,11 @@ static const float ZOMBIE_MOVE_POINTS_PER_SEC = 120.0;
     
     _velocity = CGPointMake(direction.x * ZOMBIE_MOVE_POINTS_PER_SEC,
                             direction.y * ZOMBIE_MOVE_POINTS_PER_SEC);
+}
+
+-(void)rotateSprite:(SKSpriteNode *)sprite
+             toFace:(CGPoint)direction {
+    sprite.zRotation = atan2f(direction.y, direction.x);
 }
 
 -(void)boundsCheckPlayer {

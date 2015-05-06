@@ -39,10 +39,11 @@ static const float ZOMBIE_MOVE_POINTS_PER_SEC = 120.0;
         _dt = 0;
     }
     _lastUpdateTime = currentTime;
-    [self moveSprite:_zombie velocity:CGPointMake(ZOMBIE_MOVE_POINTS_PER_SEC, 0)];
+    [self moveSprite:_zombie velocity:_velocity];
 }
 
 #pragma mark USER METHODS
+#pragma mark ----------------------------
 
 -(void)moveSprite:(SKSpriteNode *)sprite
          velocity:(CGPoint)velocity {
@@ -53,5 +54,40 @@ static const float ZOMBIE_MOVE_POINTS_PER_SEC = 120.0;
     sprite.position = CGPointMake(sprite.position.x + amountToMove.x,
                                   sprite.position.y + amountToMove.y);
 }
+
+-(void)moveZombieToward:(CGPoint)location {
+    CGPoint offset = CGPointMake(location.x - _zombie.position.x,
+                                 location.y - _zombie.position.y);
+    
+    CGFloat length = sqrtf(offset.x * offset.x + offset.y * offset.y);
+    
+    CGPoint direction = CGPointMake(offset.x / length,
+                                    offset.y / length);
+    
+    _velocity = CGPointMake(direction.x * ZOMBIE_MOVE_POINTS_PER_SEC,
+                            direction.y * ZOMBIE_MOVE_POINTS_PER_SEC);
+}
+
+#pragma mark TOUCH CONTROLS
+#pragma mark ----------------------------
+
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchLocation = [touch locationInNode:self];
+    [self moveZombieToward:touchLocation];
+}
+
+-(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchLocation = [touch locationInNode:self];
+    [self moveZombieToward:touchLocation];
+}
+
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchLocation = [touch locationInNode:self];
+    [self moveZombieToward:touchLocation];
+}
+
 
 @end

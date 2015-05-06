@@ -8,6 +8,8 @@
 
 #import "GameScene.h"
 
+#define ARC4RANDOM_MAX 0x100000000
+
 static const float ZOMBIE_MOVE_POINTS_PER_SEC = 120.0;
 static const float ZOMBIE_ROTATE_RADIANS_PER_SEC = 4 * M_PI;
 
@@ -56,6 +58,13 @@ static inline CGFloat ScalarShortestAngleBetween(const CGFloat a,
     return angle;
 }
 
+static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
+    return floorf(((double)arc4random() / ARC4RANDOM_MAX) * (max - min) + min);
+}
+
+#pragma mark IMPLEMENTATION
+#pragma mark ----------------------------
+
 @implementation GameScene {
     SKSpriteNode *_zombie;
     NSTimeInterval _lastUpdateTime;
@@ -74,6 +83,10 @@ static inline CGFloat ScalarShortestAngleBetween(const CGFloat a,
         _zombie = [SKSpriteNode spriteNodeWithImageNamed:@"zombie1"];
         _zombie.position = CGPointMake(100, 100);
         [self addChild:_zombie];
+        
+        [self runAction:[SKAction repeatActionForever:
+                         [SKAction sequence:@[[SKAction performSelector:@selector(spawnEnemy) onTarget:self],
+                                              [SKAction waitForDuration:2.0]]]]];
     }
     return self;
 }
@@ -147,6 +160,17 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
     
     _zombie.position = newPosition;
     _velocity = newVelocity;
+}
+
+-(void)spawnEnemy {
+    SKSpriteNode *enemy = [SKSpriteNode spriteNodeWithImageNamed:@"enemy"];
+    enemy.position = CGPointMake(self.size.width + enemy.size.width / 2,
+                                 ScalarRandomRange(enemy.size.height / 2,
+                                                   self.size.height - enemy.size.height / 2));
+    [self addChild:enemy];
+    
+    SKAction *runByMe = [SKAction moveToX:-enemy.size.width / 2 duration:2.0];
+    [enemy runAction:runByMe];
 }
 
 #pragma mark TOUCH CONTROLS

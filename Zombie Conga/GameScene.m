@@ -170,7 +170,8 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
     [self addChild:enemy];
     
     SKAction *runByMe = [SKAction moveToX:-enemy.size.width / 2 duration:2.0];
-    [enemy runAction:runByMe];
+    SKAction *removeMe = [SKAction removeFromParent];
+    [enemy runAction:[SKAction sequence:@[runByMe, removeMe]]];
 }
 
 #pragma mark TOUCH CONTROLS

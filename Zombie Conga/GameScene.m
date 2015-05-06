@@ -29,13 +29,13 @@ static inline CGFloat CGPointLength(const CGPoint a) {
     return sqrtf(a.x * a.x + a.y * a.y);
 }
 
-static inline CGPoint CGPoinNormalize(const CGPoint a) {
+static inline CGPoint CGPointNormalize(const CGPoint a) {
     CGFloat length = CGPointLength(a);
     return CGPointMake(a.x / length, a.y / length);
 }
 
 static inline CGFloat CGPointToAngle(const CGPoint a) {
-    return atan2f(a.y, a.y);
+    return atan2f(a.y, a.x);
 }
 
 @implementation GameScene {
@@ -78,29 +78,22 @@ static inline CGFloat CGPointToAngle(const CGPoint a) {
 -(void)moveSprite:(SKSpriteNode *)sprite
          velocity:(CGPoint)velocity {
     
-    CGPoint amountToMove = CGPointMake(velocity.x * _dt,
-                                       velocity.y * _dt);
+    CGPoint amountToMove = CGPointMultiplyScalar(velocity, _dt);
     
-    sprite.position = CGPointMake(sprite.position.x + amountToMove.x,
-                                  sprite.position.y + amountToMove.y);
+    sprite.position = CGPointAdd(sprite.position, amountToMove);
 }
 
 -(void)moveZombieToward:(CGPoint)location {
-    CGPoint offset = CGPointMake(location.x - _zombie.position.x,
-                                 location.y - _zombie.position.y);
+    CGPoint offset = CGPointSubtract(location, _zombie.position);
     
-    CGFloat length = sqrtf(offset.x * offset.x + offset.y * offset.y);
+    CGPoint direction = CGPointNormalize(offset);
     
-    CGPoint direction = CGPointMake(offset.x / length,
-                                    offset.y / length);
-    
-    _velocity = CGPointMake(direction.x * ZOMBIE_MOVE_POINTS_PER_SEC,
-                            direction.y * ZOMBIE_MOVE_POINTS_PER_SEC);
+    _velocity = CGPointMultiplyScalar(direction, ZOMBIE_MOVE_POINTS_PER_SEC);
 }
 
 -(void)rotateSprite:(SKSpriteNode *)sprite
              toFace:(CGPoint)direction {
-    sprite.zRotation = atan2f(direction.y, direction.x);
+    sprite.zRotation = CGPointToAngle(direction);
 }
 
 -(void)boundsCheckPlayer {

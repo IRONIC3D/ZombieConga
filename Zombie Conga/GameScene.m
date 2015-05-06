@@ -67,6 +67,7 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
 
 @implementation GameScene {
     SKSpriteNode *_zombie;
+    SKAction *_zombieAnimation;
     NSTimeInterval _lastUpdateTime;
     NSTimeInterval _dt;
     CGPoint _velocity;
@@ -83,6 +84,20 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
         _zombie = [SKSpriteNode spriteNodeWithImageNamed:@"zombie1"];
         _zombie.position = CGPointMake(100, 100);
         [self addChild:_zombie];
+        
+        NSMutableArray *textures = [NSMutableArray arrayWithCapacity:10];
+        for (int i = 1; i < 4; i++) {
+            NSString *textureName = [NSString stringWithFormat:@"zombie%d", i];
+            SKTexture *texture = [SKTexture textureWithImageNamed:textureName];
+            [textures addObject:texture];
+        }
+        for (int i = 4; i > 1; i--) {
+            NSString *textureName = [NSString stringWithFormat:@"zombie%d", i];
+            SKTexture *texture = [SKTexture textureWithImageNamed:textureName];
+            [textures addObject:texture];
+        }
+        _zombieAnimation = [SKAction animateWithTextures:textures timePerFrame:0.1];
+        [_zombie runAction:[SKAction repeatActionForever:_zombieAnimation]];
         
         [self runAction:[SKAction repeatActionForever:
                          [SKAction sequence:@[[SKAction performSelector:@selector(spawnEnemy) onTarget:self],

@@ -9,6 +9,7 @@
 #import "GameScene.h"
 
 static const float ZOMBIE_MOVE_POINTS_PER_SEC = 120.0;
+static const float ZOMBIE_ROTATE_RADIANS_PER_SEC = 4 * M_PI;
 
 static inline CGPoint CGPointAdd(const CGPoint a,
                                 const CGPoint b) {
@@ -36,6 +37,23 @@ static inline CGPoint CGPointNormalize(const CGPoint a) {
 
 static inline CGFloat CGPointToAngle(const CGPoint a) {
     return atan2f(a.y, a.x);
+}
+
+static inline CGFloat ScalarSign(CGFloat a) {
+    return a >= 0 ? 1 : -1;
+}
+
+static inline CGFloat ScalarShortestAngleBetween(const CGFloat a,
+                                                 const CGFloat b) {
+    CGFloat difference = b - a;
+    CGFloat angle = fmodf(difference, M_PI * 2);
+    
+    if (angle >= M_PI) {
+        angle -= M_PI * 2;
+    } else if (angle <= -M_PI) {
+        angle += M_PI * 2;
+    }
+    return angle;
 }
 
 @implementation GameScene {
@@ -68,7 +86,7 @@ static inline CGFloat CGPointToAngle(const CGPoint a) {
     }
     _lastUpdateTime = currentTime;
     [self moveSprite:_zombie velocity:_velocity];
-    [self rotateSprite:_zombie toFace:_velocity];
+    [self rotateSprite:_zombie toFace:_velocity rotateRadiansPerSec:ZOMBIE_ROTATE_RADIANS_PER_SEC];
     [self boundsCheckPlayer];
 }
 
@@ -92,8 +110,15 @@ static inline CGFloat CGPointToAngle(const CGPoint a) {
 }
 
 -(void)rotateSprite:(SKSpriteNode *)sprite
-             toFace:(CGPoint)direction {
-    sprite.zRotation = CGPointToAngle(direction);
+             toFace:(CGPoint)direction
+rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
+    float targetAngle = CGPointToAngle(direction);
+    float shortest = ScalarShortestAngleBetween(sprite.zRotation, targetAngle);
+    float amtToRotate = rotateRadiansPerSec * _dt;
+    if (ABS(shortest) < amtToRotate) {
+        amtToRotate = ABS(shortest);
+    }
+    sprite.zRotation += ScalarSign(shortest) * amtToRotate;
 }
 
 -(void)boundsCheckPlayer {

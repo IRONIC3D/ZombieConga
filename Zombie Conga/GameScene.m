@@ -68,6 +68,8 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
 @implementation GameScene {
     SKSpriteNode *_zombie;
     SKAction *_zombieAnimation;
+    SKAction *_catCollisionSound;
+    SKAction *_enemyCollisionSound;
     NSTimeInterval _lastUpdateTime;
     NSTimeInterval _dt;
     CGPoint _velocity;
@@ -105,6 +107,10 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
                                               [SKAction waitForDuration:2.0]]]]];
         
         [self runAction:[SKAction repeatActionForever:[SKAction sequence:@[[SKAction performSelector:@selector(spawnCat) onTarget:self], [SKAction waitForDuration:1.0]]]]];
+        
+        // Initializers
+        _catCollisionSound = [SKAction playSoundFileNamed:@"hitCat.wav" waitForCompletion:NO];
+        _enemyCollisionSound = [SKAction playSoundFileNamed:@"hitCatLady.wav" waitForCompletion:NO];
     }
     return self;
 }
@@ -251,7 +257,7 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
         CGRect smallerFrame = CGRectInset(cat.frame, 20, 20);
         if (CGRectIntersectsRect(smallerFrame, _zombie.frame)) {
             [cat removeFromParent];
-            [self runAction:[SKAction playSoundFileNamed:@"hitCat.wav" waitForCompletion:NO]];
+            [self runAction:_catCollisionSound];
         }
     }];
     
@@ -260,7 +266,7 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
         CGRect smallerFrame = CGRectInset(enemy.frame, 20, 20);
         if (CGRectIntersectsRect(smallerFrame, _zombie.frame)) {
             [enemy removeFromParent];
-            [self runAction:[SKAction playSoundFileNamed:@"hitCatLady.wav" waitForCompletion:NO]];
+            [self runAction:_enemyCollisionSound];
         }
     }];
 }

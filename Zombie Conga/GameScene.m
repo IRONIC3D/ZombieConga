@@ -251,6 +251,7 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
         CGRect smallerFrame = CGRectInset(cat.frame, 20, 20);
         if (CGRectIntersectsRect(smallerFrame, _zombie.frame)) {
             [cat removeFromParent];
+            [self runAction:[SKAction playSoundFileNamed:@"hitCat.wav" waitForCompletion:NO]];
         }
     }];
     
@@ -259,6 +260,7 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
         CGRect smallerFrame = CGRectInset(enemy.frame, 20, 20);
         if (CGRectIntersectsRect(smallerFrame, _zombie.frame)) {
             [enemy removeFromParent];
+            [self runAction:[SKAction playSoundFileNamed:@"hitCatLady.wav" waitForCompletion:NO]];
         }
     }];
 }

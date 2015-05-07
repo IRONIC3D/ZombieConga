@@ -128,7 +128,9 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
         [self rotateSprite:_zombie toFace:_velocity rotateRadiansPerSec:ZOMBIE_ROTATE_RADIANS_PER_SEC];
         [self boundsCheckPlayer];
     }
-    
+}
+
+-(void)didEvaluateActions {
     [self checkCollisions];
 }
 
@@ -246,7 +248,8 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
 -(void)checkCollisions {
     [self enumerateChildNodesWithName:@"cat" usingBlock:^(SKNode *node, BOOL *stop) {
         SKSpriteNode *cat = (SKSpriteNode *)node;
-        if (CGRectIntersectsRect(cat.frame, _zombie.frame)) {
+        CGRect smallerFrame = CGRectInset(cat.frame, 20, 20);
+        if (CGRectIntersectsRect(smallerFrame, _zombie.frame)) {
             [cat removeFromParent];
         }
     }];

@@ -103,6 +103,8 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
         [self runAction:[SKAction repeatActionForever:
                          [SKAction sequence:@[[SKAction performSelector:@selector(spawnEnemy) onTarget:self],
                                               [SKAction waitForDuration:2.0]]]]];
+        
+        [self runAction:[SKAction repeatActionForever:[SKAction sequence:@[[SKAction performSelector:@selector(spawnCat) onTarget:self], [SKAction waitForDuration:1.0]]]]];
     }
     return self;
 }
@@ -130,6 +132,16 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
 
 #pragma mark USER METHODS
 #pragma mark ----------------------------
+
+-(void)startZombieAnimation {
+    if (![_zombie actionForKey:@"animation"]) {
+        [_zombie runAction:[SKAction repeatActionForever:_zombieAnimation] withKey:@"animation"];
+    }
+}
+
+-(void)stopZombieAnimation {
+    [_zombie removeActionForKey:@"animation"];
+}
 
 -(void)moveSprite:(SKSpriteNode *)sprite
          velocity:(CGPoint)velocity {
@@ -201,15 +213,21 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
     [enemy runAction:[SKAction sequence:@[runByMe, removeMe]]];
 }
 
--(void)startZombieAnimation {
-    if (![_zombie actionForKey:@"animation"]) {
-        [_zombie runAction:[SKAction repeatActionForever:_zombieAnimation] withKey:@"animation"];
-    }
+-(void)spawnCat {
+    SKSpriteNode *cat = [SKSpriteNode spriteNodeWithImageNamed:@"cat"];
+    cat.position = CGPointMake(ScalarRandomRange(0, self.size.width),
+                               ScalarRandomRange(0, self.size.height));
+    cat.xScale = 0;
+    cat.yScale = 0;
+    [self addChild:cat];
+    
+    SKAction *appear = [SKAction scaleTo:1.0 duration:0.5];
+    SKAction *wait = [SKAction waitForDuration:10.0];
+    SKAction *disappear = [SKAction scaleTo:0.0 duration:0.5];
+    SKAction *removeFromParent = [SKAction removeFromParent];
+    [cat runAction:[SKAction sequence:@[appear, wait, disappear, removeFromParent]]];
 }
 
--(void)stopZombieAnimation {
-    [_zombie removeActionForKey:@"animation"];
-}
 
 #pragma mark TOUCH CONTROLS
 #pragma mark ----------------------------

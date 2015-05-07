@@ -98,7 +98,7 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
             [textures addObject:texture];
         }
         _zombieAnimation = [SKAction animateWithTextures:textures timePerFrame:0.1];
-        [_zombie runAction:[SKAction repeatActionForever:_zombieAnimation]];
+//        [_zombie runAction:[SKAction repeatActionForever:_zombieAnimation]];
         
         [self runAction:[SKAction repeatActionForever:
                          [SKAction sequence:@[[SKAction performSelector:@selector(spawnEnemy) onTarget:self],
@@ -120,6 +120,7 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
     if (distance < ZOMBIE_MOVE_POINTS_PER_SEC * _dt) {
         _zombie.position = _lastTouchLocation;
         _velocity = CGPointZero;
+        [self stopZombieAnimation];
     } else {
         [self moveSprite:_zombie velocity:_velocity];
         [self rotateSprite:_zombie toFace:_velocity rotateRadiansPerSec:ZOMBIE_ROTATE_RADIANS_PER_SEC];
@@ -139,6 +140,7 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
 }
 
 -(void)moveZombieToward:(CGPoint)location {
+    [self startZombieAnimation];
     _lastTouchLocation = location;
     CGPoint offset = CGPointSubtract(location, _zombie.position);
     
@@ -197,6 +199,16 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
     SKAction *runByMe = [SKAction moveToX:-enemy.size.width / 2 duration:2.0];
     SKAction *removeMe = [SKAction removeFromParent];
     [enemy runAction:[SKAction sequence:@[runByMe, removeMe]]];
+}
+
+-(void)startZombieAnimation {
+    if (![_zombie actionForKey:@"animation"]) {
+        [_zombie runAction:[SKAction repeatActionForever:_zombieAnimation] withKey:@"animation"];
+    }
+}
+
+-(void)stopZombieAnimation {
+    [_zombie removeActionForKey:@"animation"];
 }
 
 #pragma mark TOUCH CONTROLS

@@ -74,6 +74,7 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
     NSTimeInterval _dt;
     CGPoint _velocity;
     CGPoint _lastTouchLocation;
+    BOOL _invincible;
 }
 
 -(instancetype)initWithSize:(CGSize)size {
@@ -261,12 +262,28 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
         }
     }];
     
+    if (_invincible) return;
+    
     [self enumerateChildNodesWithName:@"enemy" usingBlock:^(SKNode *node, BOOL *stop) {
         SKSpriteNode *enemy = (SKSpriteNode *)node;
         CGRect smallerFrame = CGRectInset(enemy.frame, 20, 20);
         if (CGRectIntersectsRect(smallerFrame, _zombie.frame)) {
-            [enemy removeFromParent];
+//            [enemy removeFromParent];
             [self runAction:_enemyCollisionSound];
+            
+            _invincible = YES;
+            float blinkTimes = 10;
+            float blinkDuration = 3.0;
+            SKAction *blinkAction = [SKAction customActionWithDuration:blinkDuration actionBlock:^(SKNode *node, CGFloat elapsedTime) {
+                float slice = blinkDuration / blinkTimes;
+                float remainder = fmodf(elapsedTime, slice);
+                node.hidden = remainder > slice / 2;
+            }];
+            SKAction *sequence = [SKAction sequence:@[blinkAction, [SKAction runBlock:^{
+                _zombie.hidden = NO;
+                _invincible = NO;
+            }]]];
+            [_zombie runAction:sequence];
         }
     }];
 }

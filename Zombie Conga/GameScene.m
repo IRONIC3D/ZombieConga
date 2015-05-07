@@ -71,6 +71,7 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
     NSTimeInterval _lastUpdateTime;
     NSTimeInterval _dt;
     CGPoint _velocity;
+    CGPoint _lastTouchLocation;
 }
 
 -(instancetype)initWithSize:(CGSize)size {
@@ -113,9 +114,17 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
         _dt = 0;
     }
     _lastUpdateTime = currentTime;
-    [self moveSprite:_zombie velocity:_velocity];
-    [self rotateSprite:_zombie toFace:_velocity rotateRadiansPerSec:ZOMBIE_ROTATE_RADIANS_PER_SEC];
-    [self boundsCheckPlayer];
+    
+    CGPoint offset = CGPointSubtract(_lastTouchLocation, _zombie.position);
+    float distance = CGPointLength(offset);
+    if (distance < ZOMBIE_MOVE_POINTS_PER_SEC * _dt) {
+        _zombie.position = _lastTouchLocation;
+        _velocity = CGPointZero;
+    } else {
+        [self moveSprite:_zombie velocity:_velocity];
+        [self rotateSprite:_zombie toFace:_velocity rotateRadiansPerSec:ZOMBIE_ROTATE_RADIANS_PER_SEC];
+        [self boundsCheckPlayer];
+    }
 }
 
 #pragma mark USER METHODS
@@ -130,6 +139,7 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
 }
 
 -(void)moveZombieToward:(CGPoint)location {
+    _lastTouchLocation = location;
     CGPoint offset = CGPointSubtract(location, _zombie.position);
     
     CGPoint direction = CGPointNormalize(offset);

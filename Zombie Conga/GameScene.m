@@ -221,11 +221,17 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
     cat.yScale = 0;
     [self addChild:cat];
     
+    cat.zRotation = -M_PI / 16;
+    
     SKAction *appear = [SKAction scaleTo:1.0 duration:0.5];
-    SKAction *wait = [SKAction waitForDuration:10.0];
+    SKAction *leftWiggle = [SKAction rotateByAngle:M_PI / 6 duration:0.5];
+    SKAction *rightWiggle = [leftWiggle reversedAction];
+    SKAction *fullWiggle = [SKAction sequence:@[leftWiggle, rightWiggle]];
+    SKAction *wiggleWait = [SKAction repeatAction:fullWiggle count:10];
+//    SKAction *wait = [SKAction waitForDuration:10.0];
     SKAction *disappear = [SKAction scaleTo:0.0 duration:0.5];
     SKAction *removeFromParent = [SKAction removeFromParent];
-    [cat runAction:[SKAction sequence:@[appear, wait, disappear, removeFromParent]]];
+    [cat runAction:[SKAction sequence:@[appear, wiggleWait, disappear, removeFromParent]]];
 }
 
 

@@ -128,6 +128,8 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max) {
         [self rotateSprite:_zombie toFace:_velocity rotateRadiansPerSec:ZOMBIE_ROTATE_RADIANS_PER_SEC];
         [self boundsCheckPlayer];
     }
+    
+    [self checkCollisions];
 }
 
 #pragma mark USER METHODS
@@ -203,6 +205,7 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
 
 -(void)spawnEnemy {
     SKSpriteNode *enemy = [SKSpriteNode spriteNodeWithImageNamed:@"enemy"];
+    enemy.name = @"enemy";
     enemy.position = CGPointMake(self.size.width + enemy.size.width / 2,
                                  ScalarRandomRange(enemy.size.height / 2,
                                                    self.size.height - enemy.size.height / 2));
@@ -215,6 +218,7 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
 
 -(void)spawnCat {
     SKSpriteNode *cat = [SKSpriteNode spriteNodeWithImageNamed:@"cat"];
+    cat.name = @"cat";
     cat.position = CGPointMake(ScalarRandomRange(0, self.size.width),
                                ScalarRandomRange(0, self.size.height));
     cat.xScale = 0;
@@ -237,6 +241,23 @@ rotateRadiansPerSec:(CGFloat)rotateRadiansPerSec {
     SKAction *disappear = [SKAction scaleTo:0.0 duration:0.5];
     SKAction *removeFromParent = [SKAction removeFromParent];
     [cat runAction:[SKAction sequence:@[appear, groupWait, disappear, removeFromParent]]];
+}
+
+-(void)checkCollisions {
+    [self enumerateChildNodesWithName:@"cat" usingBlock:^(SKNode *node, BOOL *stop) {
+        SKSpriteNode *cat = (SKSpriteNode *)node;
+        if (CGRectIntersectsRect(cat.frame, _zombie.frame)) {
+            [cat removeFromParent];
+        }
+    }];
+    
+    [self enumerateChildNodesWithName:@"enemy" usingBlock:^(SKNode *node, BOOL *stop) {
+        SKSpriteNode *enemy = (SKSpriteNode *)node;
+        CGRect smallerFrame = CGRectInset(enemy.frame, 20, 20);
+        if (CGRectIntersectsRect(smallerFrame, _zombie.frame)) {
+            [enemy removeFromParent];
+        }
+    }];
 }
 
 
